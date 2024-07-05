@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewsPage extends StatelessWidget {
   @override
@@ -38,13 +39,15 @@ class NewsPage extends StatelessWidget {
                 children: [
                   NewsCard(
                     title: 'اطلاعیه آموزشی',
-                    description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
-                    imageUrl: 'https://via.placeholder.com/150', // Valid URL #1
+                    description: 'اخبار دانشگاه بهشتی',
+                    imageUrl: 'assets/images/uni.jpg', // Valid URL #1
+                    url: 'https://news.sbu.ac.ir',  // Add URL for the first news
                   ),
                   NewsCard(
                     title: 'اطلاعیه آموزشی',
-                    description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
-                    imageUrl: 'https://via.placeholder.com/150', // Valid URL #2
+                    description: 'اخبار جدید دانشجویی',
+                    imageUrl: 'assets/images/uni2.jpg', // Valid URL #2
+                    url: 'https://www.mehrnews.com',  // Add URL for the second news
                   ),
                 ],
               ),
@@ -60,8 +63,17 @@ class NewsCard extends StatelessWidget {
   final String title;
   final String description;
   final String imageUrl;
+  final String url;
 
-  NewsCard({required this.title, required this.description, required this.imageUrl});
+  NewsCard({required this.title, required this.description, required this.imageUrl, required this.url});
+
+  Future<void> _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +81,7 @@ class NewsCard extends StatelessWidget {
       margin: EdgeInsets.all(8.0),
       child: Column(
         children: [
-          Image.network(imageUrl),
+          Image.asset(imageUrl), // Use Image.asset for local images
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
@@ -84,9 +96,7 @@ class NewsCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextButton(
-              onPressed: () {
-                // Navigate to detailed news page
-              },
+              onPressed: () => _launchURL(url), // Open the URL when pressed
               child: Text('مطالعه بیشتر...'),
             ),
           ),
