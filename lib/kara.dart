@@ -95,31 +95,39 @@ class _KaraState extends State<Kara> {
         title: Text('My To-Do List'),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: _tasks.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(
-              _tasks[index].title,
-              style: TextStyle(
-                color: _tasks[index].isDone ? Colors.green : Colors.red,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/back.jpg'), // replace with your image
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: ListView.builder(
+          itemCount: _tasks.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(
+                _tasks[index].title,
+                style: TextStyle(
+                  color: _tasks[index].isDone ? Colors.green : Colors.red,
+                ),
               ),
-            ),
-            subtitle: Text(
-              'Deadline: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].deadline)}'
-                  '${_tasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].reminder!)}' : ''}',
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                _removeTask(_tasks[index].id);
+              subtitle: Text(
+                'Deadline: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].deadline)}'
+                    '${_tasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].reminder!)}' : ''}',
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  _removeTask(_tasks[index].id);
+                },
+              ),
+              onTap: () {
+                _toggleTaskStatus(_tasks[index]);
               },
-            ),
-            onTap: () {
-              _toggleTaskStatus(_tasks[index]);
-            },
-          );
-        },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
