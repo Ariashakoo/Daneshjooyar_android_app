@@ -1,49 +1,56 @@
 import 'package:flutter/material.dart';
-// import 'package:webview_flutter/webview_flutter.dart';  // I don't know why it gives an error
 
 class NewsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Chip(label: Text('اخبار')),
-                Chip(label: Text('رویدادها')),
-                Chip(label: Text('یادآوری‌ها')),
-                Chip(label: Text('تولدهای امروز')),
-                Chip(label: Text('تمدیدها')),
-              ],
-            ),
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/back.jpg'), // replace with your background image
+            fit: BoxFit.cover,
           ),
-          Container(
-            margin: EdgeInsets.all(8.0),
-            child: Text(
-              'امروز (۱۶ اردیبهشت)',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Chip(label: Text('اخبار')),
+                  Chip(label: Text('رویدادها')),
+                  Chip(label: Text('یادآوری‌ها')),
+                  Chip(label: Text('تولدهای امروز')),
+                  Chip(label: Text('تمدیدها')),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                NewsCard(
-                  title: 'اطلاعیه آموزشی',
-                  description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
-                  imageUrl: 'https://example.com/image1.jpg',
-                ),
-                NewsCard(
-                  title: 'اطلاعیه آموزشی',
-                  description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
-                  imageUrl: 'https://example.com/image2.jpg',
-                ),
-              ],
+            Container(
+              margin: EdgeInsets.all(8.0),
+              child: Text(
+                'امروز (۱۶ اردیبهشت)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: ListView(
+                children: [
+                  NewsCard(
+                    title: 'اطلاعیه آموزشی',
+                    description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
+                    imageUrl: 'https://via.placeholder.com/150', // Valid URL #1
+                  ),
+                  NewsCard(
+                    title: 'اطلاعیه آموزشی',
+                    description: 'قابل توجه دانشجویان دکترا ورودی ۹۸ امکان حذف یک نیمسال بدون احتساب در سنوات...',
+                    imageUrl: 'https://via.placeholder.com/150', // Valid URL #2
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
