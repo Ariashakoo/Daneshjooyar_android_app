@@ -5,8 +5,10 @@ class TaskModel {
   final String id;
   final String title;
   final DateTime deadline;
+  DateTime? reminder;
+  bool isDone;
 
-  TaskModel({required this.id, required this.title, required this.deadline});
+  TaskModel({required this.id, required this.title, required this.deadline, this.reminder, this.isDone = false});
 }
 
 class Kara extends StatefulWidget {
@@ -20,6 +22,7 @@ class _KaraState extends State<Kara> {
   int _currentIndex = 0;
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay(hour: 0, minute: 0);
+  DateTime? _selectedReminder;
 
   void _createTask(TaskModel task) {
     setState(() {
@@ -39,28 +42,48 @@ class _KaraState extends State<Kara> {
     });
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  void _toggleTaskStatus(TaskModel task) {
+    setState(() {
+      task.isDone = !task.isDone;
+    });
+  }
+
+  Future<void> _selectDate(BuildContext context, {bool isDeadline = true}) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDate: isDeadline ? _selectedDate : DateTime.now(),
       firstDate: DateTime(2015),
       lastDate: DateTime(2101),
     );
-    if (picked!= null && picked!= _selectedDate) {
+    if (picked != null) {
       setState(() {
-        _selectedDate = picked;
+        if (isDeadline) {
+          _selectedDate = picked;
+        } else {
+          _selectedReminder = picked;
+        }
       });
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  Future<void> _selectTime(BuildContext context, {bool isDeadline = true}) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
-      initialTime: _selectedTime,
+      initialTime: isDeadline ? _selectedTime : TimeOfDay(hour: 12, minute: 0),
     );
-    if (picked!= null && picked!= _selectedTime) {
+    if (picked != null) {
       setState(() {
-        _selectedTime = picked;
+        if (isDeadline) {
+          _selectedTime = picked;
+        } else {
+          _selectedReminder = DateTime(
+            _selectedReminder!.year,
+            _selectedReminder!.month,
+            _selectedReminder!.day,
+            picked.hour,
+            picked.minute,
+          );
+        }
       });
     }
   }
@@ -72,26 +95,31 @@ class _KaraState extends State<Kara> {
         title: Text('My To-Do List'),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          // Widget for the task list
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: _tasks.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(_tasks[index].title),
-                subtitle: Text(DateFormat.yMMMd().add_Hms().format(_tasks[index].deadline)),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () {
-                    _removeTask(_tasks[index].id);
-                  },
-                ),
-              );
+      body: ListView.builder(
+        itemCount: _tasks.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(
+              _tasks[index].title,
+              style: TextStyle(
+                color: _tasks[index].isDone ? Colors.green : Colors.red,
+              ),
+            ),
+            subtitle: Text(
+              'Deadline: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].deadline)}'
+                  '${_tasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].reminder!)}' : ''}',
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                _removeTask(_tasks[index].id);
+              },
+            ),
+            onTap: () {
+              _toggleTaskStatus(_tasks[index]);
             },
-          ),
-        ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -114,15 +142,27 @@ class _KaraState extends State<Kara> {
                     SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () => _selectDate(context),
-                      child: Text('Select Date'),
+                      child: Text('Select Deadline Date'),
                     ),
                     Text(DateFormat.yMMMd().format(_selectedDate)),
                     SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () => _selectTime(context),
-                      child: Text('Select Time'),
+                      child: Text('Select Deadline Time'),
                     ),
                     Text(_selectedTime.format(context)),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () => _selectDate(context, isDeadline: false),
+                      child: Text('Select Reminder Date'),
+                    ),
+                    if (_selectedReminder != null) Text(DateFormat.yMMMd().format(_selectedReminder!)),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () => _selectTime(context, isDeadline: false),
+                      child: Text('Select Reminder Time'),
+                    ),
+                    if (_selectedReminder != null) Text(DateFormat.yMMMd().add_Hms().format(_selectedReminder!)),
                   ],
                 ),
                 actionsAlignment: MainAxisAlignment.spaceBetween,
@@ -146,6 +186,7 @@ class _KaraState extends State<Kara> {
                             _selectedTime.hour,
                             _selectedTime.minute,
                           ),
+                          reminder: _selectedReminder,
                         );
                         _createTask(newTask);
                         _taskTextEditingController.clear();
@@ -159,20 +200,6 @@ class _KaraState extends State<Kara> {
             },
           );
         },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
       ),
     );
   }
