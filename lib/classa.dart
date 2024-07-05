@@ -44,7 +44,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
   void _toggleClassStatus(ClassModel classModel) {
     setState(() {
-      classModel.isDone = !classModel.isDone;
+      classModel.isDone =!classModel.isDone;
     });
   }
 
@@ -55,7 +55,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       firstDate: DateTime(2015),
       lastDate: DateTime(2101),
     );
-    if (picked != null) {
+    if (picked!= null) {
       setState(() {
         _selectedDate = picked;
       });
@@ -67,7 +67,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       context: context,
       initialTime: _selectedTime,
     );
-    if (picked != null) {
+    if (picked!= null) {
       setState(() {
         _selectedTime = picked;
       });
@@ -81,30 +81,38 @@ class _ClassListScreenState extends State<ClassListScreen> {
         title: Text('My Classes'),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: _classes.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(
-              _classes[index].title,
-              style: TextStyle(
-                color: _classes[index].isDone ? Colors.green : Colors.red,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/back.jpg'), // replace with your image
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: ListView.builder(
+          itemCount: _classes.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(
+                _classes[index].title,
+                style: TextStyle(
+                  color: _classes[index].isDone? Colors.green : Colors.red,
+                ),
               ),
-            ),
-            subtitle: Text(
-              'Professor: ${_classes[index].professor}\nTime: ${DateFormat.yMMMd().add_Hms().format(_classes[index].classTime)}',
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                _removeClass(_classes[index].id);
+              subtitle: Text(
+                'Professor: ${_classes[index].professor}\nTime: ${DateFormat.yMMMd().add_Hms().format(_classes[index].classTime)}',
+              ),
+              trailing: IconButton(
+                icon: Icon(Icons.delete),
+                onPressed: () {
+                  _removeClass(_classes[index].id);
+                },
+              ),
+              onTap: () {
+                _toggleClassStatus(_classes[index]);
               },
-            ),
-            onTap: () {
-              _toggleClassStatus(_classes[index]);
-            },
-          );
-        },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -200,35 +208,43 @@ class ClassesPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListView(
-          children: [
-            ClassCard(
-              title: 'برنامه‌سازی پیشرفته',
-              teacher: 'دکتر وحیدی',
-              unitCount: 3,
-              remainingAssignments: 4,
-              topStudent: 'علی علوی',
-              color: Colors.purple,
-            ),
-            ClassCard(
-              title: 'معماری کامپیوتر',
-              teacher: 'دکتر مهدیانی',
-              unitCount: 3,
-              remainingAssignments: 4,
-              topStudent: 'علی علوی',
-              color: Colors.red,
-            ),
-            ClassCard(
-              title: 'ساختمان داده',
-              teacher: 'دکتر علیدوست',
-              unitCount: 3,
-              remainingAssignments: 4,
-              topStudent: 'علی علوی',
-              color: Colors.green,
-            ),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/background.jpg'), // replace with your image
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListView(
+            children: [
+              ClassCard(
+                title: 'برنامه‌سازی پیشرفته',
+                teacher: 'دکتر وحیدی',
+                unitCount: 3,
+                remainingAssignments: 4,
+                topStudent: 'علی علوی',
+                color: Colors.purple,
+              ),
+              ClassCard(
+                title: 'معماری کامپیوتر',
+                teacher: 'دکتر مهدیانی',
+                unitCount: 3,
+                remainingAssignments: 4,
+                topStudent: 'علی علوی',
+                color: Colors.red,
+              ),
+              ClassCard(
+                title: 'ساختمان داده',
+                teacher: 'دکتر علیدوست',
+                unitCount: 3,
+                remainingAssignments: 4,
+                topStudent: 'علی علوی',
+                color: Colors.green,
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -248,7 +264,6 @@ class ClassesPage extends StatelessWidget {
     );
   }
 }
-
 
 class ClassCard extends StatelessWidget {
   final String title;
