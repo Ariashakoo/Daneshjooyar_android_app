@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'kara.dart';
 import 'khabara.dart';
 import 'classa.dart';
-
+import 'tasks_page.dart';
 class SaraPage extends StatefulWidget {
   @override
   _SaraPageState createState() => _SaraPageState();
@@ -16,6 +16,7 @@ class _SaraPageState extends State<SaraPage> {
     NewsPage(),
     ClassListScreen(),
     Kara(), // Navigate to Kara page
+    AssignmentsPage(),
   ];
 
   void onTabTapped(int index) {
@@ -51,7 +52,11 @@ class _SaraPageState extends State<SaraPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.file_copy),
-            label: 'kara Page',
+            label: 'Kara Page',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.file_copy),
+            label: 'Tamrina',
           ),
         ],
       ),
