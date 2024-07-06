@@ -1,80 +1,56 @@
 import java.net.*;
-
-import javax.naming.ldap.SortKey;
-
 import java.io.*;
 
 public class Server {
-    public static void main(String[] args) throws Exception{
-    System.out.println("WELCOME TO SERVER ! ");       
-    ServerSocket ss = new ServerSocket(8080);
+    public static void main(String[] args) throws Exception {
+        System.out.println("WELCOME TO SERVER!");
+        ServerSocket ss = new ServerSocket(12345);
 
-    while(true){
-        System.out.println("WAITING FOR CLIENT......");
-        new ClientHandler(ss.accept()).start();
+        while (true) {
+            System.out.println("WAITING FOR CLIENT...");
+            Socket socket = ss.accept();
+            new Thread(new ClientHandler(socket)).start();
+        }
     }
 
+    static class ClientHandler implements Runnable {
+        private Socket socket;
+        private BufferedReader in;
 
-
-
-
-    }
-
-
-
-
-
-    class ClientHandler extends Thread{
-
-        Socket socket;
-        DataInputStream DIS ;
-        DataOutputStream DOS ;
-
-        public ClientHandler(Socket socket) throws Exception{
+        public ClientHandler(Socket socket) throws IOException {
             this.socket = socket;
-            DIS = new DataInputStream(socket.getInputStream());
-            DOS = new DataOutputStream(socket.getInputStream());
-            System.out.println("CONNECTED TO THE SERVER  !");
+            this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("CONNECTED TO THE SERVER!");
         }
 
-        public String Listener() throws Exception {
-            System.out.println("LISTENER IS ACTIVATE ");
-            StringBuilder SB = new StringBuilder();
-            int index = DIS.read();
-            while(index != 0 ){
-                SB.append((char)index);
-                index = DIS.read();
+        @Override
+        public void run() {
+            try {
+                String command = in.readLine();
+                System.out.println("COMMAND RECEIVED: " + command);
+
+                // Split the command using the tilde delimiter
+                String[] parts = command.split("~");
+                if (parts.length == 5) {
+                    String firstName = parts[0];
+                    String lastName = parts[1];
+                    String id = parts[2];
+                    String email = parts[3];
+                    String password = parts[4];
+                    System.out.println("First Name: " + firstName);
+                    System.out.println("Last Name: " + lastName);
+                    System.out.println("ID: " + id);
+                    System.out.println("Email: " + email);
+                    System.out.println("Password: " + password);
+                } else {
+                    System.out.println("Invalid number of parts received");
+                }
+
+                in.close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            System.out.println("LISTENER DONE !");
-
-            return SB.toString();
         }
-
-        public void Write() throws Exception{
-
-        }
-
-        public void run(){
-            super.run();
-            Stirng command ; //command~keyworld~value
-            try{
-                command = Listener();
-                System.out.println("COMMAND THAT RECIEVED : "+command);
-            }catch(Exception e){}
-            String[] split = command.split("~"); 
-            for(String s : split){
-                System.out.println(s);
-            }
-            switch (split[0]) {
-                case "command":
-                    
-                    break;
-            
-                default:
-                    break;
-            }
-
-        }
-
     }
 }
