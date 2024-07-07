@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:io'; // Ensure dart:io is imported
 import 'package:untitled4/homepage.dart';
+import 'dart:io';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -20,7 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   static final RegExp _passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$');
   static final RegExp _emailRegex = RegExp(r'^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
-  static final RegExp _idRegex = RegExp(r'^\d{10}$');
+  static final RegExp _idRegex = RegExp(r'^\d{9}$');
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +92,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       return 'Please enter your ID';
                     }
                     if (!_idRegex.hasMatch(value)) {
-                      return 'ID must be 10 digits long';
+                      return 'ID must be 9 digits long';
                     }
                     return null;
                   },
@@ -140,43 +140,35 @@ class _SignUpPageState extends State<SignUpPage> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      try {
-                        // Create a socket
-                        // Use appropriate IP for emulator or actual environment
-                        Socket socket = await Socket.connect('192.168.172.74', 12345);
+                      // Create a socket
+                      Socket socket = await Socket.connect('172.20.96.129', 12345);
 
-                        // Create a string with the data separated by tilde
-                        String data = '${firstNameController.text}~${lastNameController.text}~${idController.text}~${emailController.text}~${passwordController.text}';
+                      // Create a string with the data separated by tilde and prefixed with the sign command
+                      String data = 'sign~${firstNameController.text}~${lastNameController.text}~${idController.text}~${emailController.text}~${passwordController.text}';
 
-                        // Send the data to the server
-                        socket.write(data);
+                      // Send the data to the server
+                      socket.write(data);
 
-                        // Close the socket
-                        await socket.flush();
-                        socket.destroy();
+                      // Notify server of end of message
+                      socket.add([0]);
 
-                        // Show a snackbar to display the success message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Sign up successful'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                      // Close the socket
+                      await socket.flush();
+                      socket.close();
 
-                        // Redirect to the home page
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyHomePage()),
-                        );
-                      } catch (e) {
-                        // Show a snackbar to display the error message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Failed to connect to the server: $e'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
-                      }
+                      // Show a snackbar to display the success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Sign up successful'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+
+                      // Redirect to the home page
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyHomePage()),
+                      );
                     }
                   },
                   child: const Text('Sign Up'),

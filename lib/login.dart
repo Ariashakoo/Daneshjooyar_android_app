@@ -97,8 +97,8 @@ class _LoginPageState extends State<LoginPage> {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your ID';
                     }
-                    if (value.length != 10) {
-                      return 'ID must be exactly 10 characters long';
+                    if (value.length != 9) {
+                      return 'ID must be exactly 9 characters long';
                     }
                     return null;
                   },
