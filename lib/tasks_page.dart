@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart'; // Only import this for the date formatting
 
 void main() {
   runApp(MyApp());
@@ -21,27 +21,19 @@ class AssignmentsPage extends StatefulWidget {
 }
 
 class _AssignmentsPageState extends State<AssignmentsPage> {
-  int _currentIndex = 0;
-
   final List<Assignment> assignments = [
-    Assignment('تمرین مینی‌پروژه AP', DateTime.now().add(Duration(days: 2)), '4:00 عصر'),
-    Assignment('تمرین مدار منطقی 1', DateTime.now().add(Duration(days: 4)), '6:00 عصر'),
-    Assignment('تمرین ریاضی 2', DateTime.now().add(Duration(days: 5)), '12:00 ظهر'),
-    Assignment('تمرین معادلات دیفرانسیل 2', DateTime.now().add(Duration(days: 6)), '9:00 صبح'),
-    Assignment('تمرین معماری کامپیوتر', DateTime.now().add(Duration(days: 7)), '9:00 صبح'),
+    Assignment('AP Mini Project Assignment', DateTime.now().add(Duration(days: 2)), '4:00 PM'),
+    Assignment('Digital Logic Circuits 1 Assignment', DateTime.now().add(Duration(days: 4)), '6:00 PM'),
+    Assignment('Math 2 Assignment', DateTime.now().add(Duration(days: 5)), '12:00 PM'),
+    Assignment('Differential Equations 2 Assignment', DateTime.now().add(Duration(days: 6)), '9:00 AM'),
+    Assignment('Computer Architecture Assignment', DateTime.now().add(Duration(days: 7)), '9:00 AM'),
   ];
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('تمرین‌ها'),
+        title: Text('Assignments'),
       ),
       body: ListView.builder(
         itemCount: assignments.length,
@@ -59,30 +51,6 @@ class _AssignmentsPageState extends State<AssignmentsPage> {
             },
           );
         },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTabTapped,
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Sara Page',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.newspaper),
-            label: 'Khabara Page',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.class_),
-            label: 'Classa Page',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.file_copy),
-            label: 'tamrina',
-          ),
-        ],
       ),
     );
   }
@@ -118,7 +86,7 @@ class AssignmentCard extends StatelessWidget {
           ),
           title: Text(assignment.title),
           subtitle: Text(
-              '${DateFormat.yMMMMd('fa').format(assignment.dueDate)} \n${assignment.time}'),
+              '${DateFormat.yMMMMd().format(assignment.dueDate)} \n${assignment.time}'),
           onTap: onTap,
         ),
       ),
@@ -140,23 +108,23 @@ class _AssignmentDetailsPageState extends State<AssignmentDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('جزئیات تمرین'),
+        title: Text('Assignment Details'),
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('عنوان: ${widget.assignment.title}', style: TextStyle(fontSize: 20)),
+            Text('Title: ${widget.assignment.title}', style: TextStyle(fontSize: 20)),
             SizedBox(height: 10),
-            Text('ددلاین: ${DateFormat.yMMMMd('fa').format(widget.assignment.dueDate)}'),
+            Text('Deadline: ${DateFormat.yMMMMd().format(widget.assignment.dueDate)}'),
             SizedBox(height: 10),
-            Text('زمان تخمینی باقی‌مانده: 5 ساعت'),
+            Text('Estimated Remaining Time: 5 hours'),
             SizedBox(height: 10),
-            Text('توضیحات: آشنایی با verilog و مدارهای آسنکرون'),
+            Text('Description: Familiarize yourself with Verilog and asynchronous circuits'),
             SizedBox(height: 10),
             CheckboxListTile(
-              title: Text('علامت‌گذاری به عنوان تکمیل شده'),
+              title: Text('Mark as completed'),
               value: widget.assignment.isCompleted,
               onChanged: (bool? value) {
                 setState(() {
@@ -166,7 +134,7 @@ class _AssignmentDetailsPageState extends State<AssignmentDetailsPage> {
             ),
             TextField(
               decoration: InputDecoration(
-                labelText: 'توضیحات تحویل',
+                labelText: 'Submission Notes',
                 border: OutlineInputBorder(),
               ),
               maxLines: 3,
@@ -174,7 +142,7 @@ class _AssignmentDetailsPageState extends State<AssignmentDetailsPage> {
             SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {},
-              child: Text('ثبت'),
+              child: Text('Submit'),
             ),
           ],
         ),
