@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:typed_data';
 import 'sara.dart'; // Add this line to import the SaraPage class
 
 class UserPage extends StatefulWidget {
@@ -22,7 +25,39 @@ class UserPage extends StatefulWidget {
 
 class _UserPageState extends State<UserPage> {
   File? _image;
+  String _grade = "Loading...";
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _retrieveGrade(); // Retrieve the grade from the server when the Widget initializes
+  }
+
+  Future<void> _retrieveGrade() async {
+    const String serverAddress = '127.0.0.1'; // Replace with your server's IP address
+    const int serverPort = 12345; // Replace with your server's port
+    Socket? socket;
+
+    try {
+      socket = await Socket.connect(serverAddress, serverPort);
+      print('Connected to: ${socket.remoteAddress.address}:${socket.remotePort}');
+
+      socket.write('user\n');
+
+      // Listen for the response from the server
+      socket.listen((Uint8List data) {
+        final String serverResponse = String.fromCharCodes(data);
+        setState(() {
+          _grade = serverResponse;
+        });
+        socket?.destroy();
+      });
+    } catch (e) {
+      print('Error: $e');
+      socket?.destroy();
+    }
+  }
 
   void _showAdminMessage() {
     showDialog(
@@ -41,6 +76,31 @@ class _UserPageState extends State<UserPage> {
     );
   }
 
+  Future<void> _changePassword(String newPassword) async {
+    const String serverAddress = '192.168.8.100'; // Replace with your server's IP address
+    const int serverPort = 12345; // Replace with your server's port
+    Socket? socket;
+
+    try {
+      socket = await Socket.connect(serverAddress, serverPort);
+      print('Connected to: ${socket.remoteAddress.address}:${socket.remotePort}');
+
+      // Send the change password command along with the username and new password
+      String command = 'change_password~user_1~$newPassword\n';
+      socket.write(command);
+
+      // Listen for the response from the server
+      socket.listen((Uint8List data) {
+        final String serverResponse = String.fromCharCodes(data);
+        print('Server response: $serverResponse');
+        socket?.destroy();
+      });
+    } catch (e) {
+      print('Error: $e');
+      socket?.destroy();
+    }
+  }
+
   void _showPasswordPanel() {
     TextEditingController passwordController = TextEditingController();
     showDialog(
@@ -56,7 +116,8 @@ class _UserPageState extends State<UserPage> {
           actions: [
             TextButton(
               onPressed: () {
-                // Handle password change logic using passwordController.text
+                // Send new password to the server
+                _changePassword(passwordController.text);
                 Navigator.of(context).pop();
               },
               child: const Text("Submit"),
@@ -78,7 +139,6 @@ class _UserPageState extends State<UserPage> {
         title: const Text('User Page'),
       ),
       body: Container(
-        // Add a background image
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/back.jpg'), // Make sure to add your background image asset in your project
@@ -89,7 +149,6 @@ class _UserPageState extends State<UserPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // First rectangle containing profile picture and names
               Container(
                 width: 300,
                 padding: const EdgeInsets.all(16),
@@ -103,7 +162,7 @@ class _UserPageState extends State<UserPage> {
                       color: Colors.grey.withOpacity(0.5),
                       spreadRadius: 2,
                       blurRadius: 7,
-                      offset: const Offset(0, 3), // changes position of shadow
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -156,7 +215,6 @@ class _UserPageState extends State<UserPage> {
                   ],
                 ),
               ),
-              // Second rectangle containing other information
               Container(
                 width: 300,
                 padding: const EdgeInsets.all(16),
@@ -169,7 +227,7 @@ class _UserPageState extends State<UserPage> {
                       color: Colors.grey.withOpacity(0.5),
                       spreadRadius: 2,
                       blurRadius: 7,
-                      offset: const Offset(0, 3), // changes position of shadow
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -186,18 +244,16 @@ class _UserPageState extends State<UserPage> {
                       style: TextStyle(fontSize: 18),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '18.5',
-                      style: TextStyle(fontSize: 18),
+                    Text(
+                      _grade,
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
-              // Button to go to Sara Page
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to Sara Page (ensure this is implemented in the `sara.dart` file)
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SaraPage()), // Make sure `SaraPage` is defined in `sara.dart`
@@ -206,13 +262,11 @@ class _UserPageState extends State<UserPage> {
                 child: const Text('Go to Sara Page'),
               ),
               const SizedBox(height: 16),
-              // Button to change user info
               ElevatedButton(
                 onPressed: _showAdminMessage,
                 child: const Text('Change Info'),
               ),
               const SizedBox(height: 16),
-              // Button to change password
               ElevatedButton(
                 onPressed: _showPasswordPanel,
                 child: const Text('Change Password'),
