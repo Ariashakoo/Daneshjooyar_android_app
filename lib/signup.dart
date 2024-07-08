@@ -141,7 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       // Create a socket
-                      Socket socket = await Socket.connect('172.20.96.129', 12345);
+                      Socket socket = await Socket.connect('192.168.8.100', 12345);
 
                       // Create a string with the data separated by tilde and prefixed with the sign command
                       String data = 'sign~${firstNameController.text}~${lastNameController.text}~${idController.text}~${emailController.text}~${passwordController.text}';
