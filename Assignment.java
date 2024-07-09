@@ -3,10 +3,22 @@ public class Assignment {
     String name ;
     private String deadline;
     private boolean available;
-    Assignment(String deadline, boolean available , String name) {
+    private String coursename;
+    private Strign teacherid;
+    Assignment(String deadline, boolean available , String name ,String coursename , String teacherid) {
         this.deadline = deadline;
         this.available = available;
         this.name = name;
+        this.coursename=coursename;
+    }
+    public Strign getTeacherid() {
+        return teacherid;
+    }
+    public void setCoursename(String coursename) {
+        this.coursename = coursename;
+    }
+    public String getCoursename() {
+        return coursename;
     }
     Assignment(String deadline, String available , String name){
         this.deadline= deadline;
