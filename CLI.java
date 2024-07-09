@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 public class CLI {
-    static String[][] passwords =new String[0][4];
+    static String[][] passwords =new String[0][5];
     static List<Student> students = new ArrayList<Student>();
     static List<Course> courses = new ArrayList<Course>();
     static List<Teacher> teachers = new ArrayList<Teacher>();
@@ -44,6 +44,7 @@ public class CLI {
                 passwords[i][1] = parts[1];
                 passwords[i][2] = parts[2];
                 passwords[i][3] = parts[3];
+                passwords[i][4] = parts[4];
             }
             
             reader = new BufferedReader(new FileReader("C:\\Users\\NoteBook\\Desktop\\mini\\mini-project\\data\\assignments.txt"));
@@ -53,7 +54,7 @@ public class CLI {
             for(int i = 0 ; i < lines ;i++){
                 line = assignmentsraf.readLine();
                 parts = line.split("~");
-                Assignment newassignment = new Assignment( parts[2],parts[1] ,parts[0],parts[3],parts[4]);
+                Assignment newassignment = new Assignment( parts[2],Boolean.parseBoolean(parts[1]) ,parts[0],parts[3],parts[4]);
                 Assignments.add(newassignment);
             }
             
@@ -218,10 +219,10 @@ public class CLI {
                 FileWriter writer = new FileWriter("C:\\Users\\NoteBook\\Desktop\\mini\\mini-project\\data\\PASSWORDS.txt");
                 for(int i = 0 ; i < passwords.length ; i++){
                     if(i==passwords.length-1){
-                        writer.write(String.valueOf(passwords[i][0])+"~"+passwords[i][1]+"~"+passwords[i][2]+"~"+passwords[i][3]);
+                        writer.write(String.valueOf(passwords[i][0])+"~"+passwords[i][1]+"~"+passwords[i][2]+"~"+passwords[i][3]+"~"+passwords[i][4]);
                     }
                     else{
-                        writer.write(String.valueOf(passwords[i][0])+"~"+passwords[i][1]+"~"+passwords[i][2]+"~"+passwords[i][3]+"\n");
+                        writer.write(String.valueOf(passwords[i][0])+"~"+passwords[i][1]+"~"+passwords[i][2]+"~"+passwords[i][3]+"~"+passwords[i][4]+"\n");
                     }
                 }
                 writer.flush();
@@ -248,6 +249,7 @@ public class CLI {
                             info+="/";
                         }
                     }
+                    info+="~"+s.getBirthdate();
                     if(i!=passwords.length-1){
                         info+="\n";
                     }
@@ -286,6 +288,16 @@ public class CLI {
                 writer = new FileWriter("C:\\Users\\NoteBook\\Desktop\\mini\\mini-project\\data\\courses.txt");
                 for(int i = 0 ; i < courses.size();i++){
                     writer.write(courses.get(i).getCourseName()+"~"+String.valueOf(courses.get(i).getUnitsPerCourse())+"~"+courses.get(i).getDate_Of_Exam());
+                    if(i!=courses.size()-1){
+                        writer.write("\n");
+                    }
+                }
+                writer.flush();
+                writer.close();
+
+                writer = new FileWriter("C:\\Users\\NoteBook\\Desktop\\mini\\mini-project\\data\\birthdate.txt");
+                for(int i = 0 ; i < students.size();i++){
+                    writer.write(students.get(i).getName()+"~"+students.get(i).getLast_Name()+"~"+students.get(i).getBirthdate());
                     if(i!=courses.size()-1){
                         writer.write("\n");
                     }
@@ -907,5 +919,11 @@ public class CLI {
             }
         }
         return 0;
+    }
+    public void COURSE (){
+
+    }
+    public void ASSIGNMENT(){
+
     }
 }

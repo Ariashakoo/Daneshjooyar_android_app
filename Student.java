@@ -12,14 +12,18 @@ public class Student{
     private List<SCORE> Ongoing_Term_scores = new ArrayList<SCORE>();
     private int Number_Of_Terms = 0;
     private String Email ;
+    private String birthdate ;
     private List<Assignment> projects = new ArrayList<Assignment>();
-    Student(String name, String Last_Name, Long Studentid , String Email){
+    Student(String name, String Last_Name, Long Studentid , String Email , String birthdate){
         this.name =name;
         this.Last_Name = Last_Name;
         this.Studentid = Studentid;
         this.Email = Email;
+        this.birthdate = birthdate;
     }
-
+    public String getBirthdate() {
+        return birthdate;
+    }
     public void addProjects(Assignment a){
         projects.add(a);
     }
@@ -55,15 +59,17 @@ public class Student{
             average+=Ongoing_Term_scores.get(i).getScore();
         }
         average = average/i;
+        return average;
     }
     public double TermAverage(int TermNumber){
-        List<Course> SCORES = terms.get(TermNumber-1).getScores();
+        List<SCORE> SCORES = terms.get(TermNumber-1).getScores();
         double average = 0.0;
         int i = 0;
         for( ; i< SCORES.size();i++){
             average+=SCORES.get(i).getScore();
         }
         average = average/i;
+        return average;
     }
 
 

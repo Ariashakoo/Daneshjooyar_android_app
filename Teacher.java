@@ -99,22 +99,14 @@ public class Teacher {
 
     public void addProjects(Assignment x){
         Projects.add(x);
-        List<Course> c =student.getCourses_Assigned();
-        for(int j = 0 ; j<c.size() ; j++){
-            if(x.getCoursename().equals(c.get(j).getCourseName())){
-                student.addProjects(Projects.get(i));
-                break;
-            }
+        for(int j = 0 ; j<studentsOfTeacher.size() ; j++){
+            studentsOfTeacher.get(j).addProjects(Projects.get(j));
         }
     }
     public void removeProjects(Assignment x){
         Projects.remove(x);
-        List<Course> c =student.getCourses_Assigned();
-        for(int j = 0 ; j<c.size() ; j++){
-            if(x.getCoursename().equals(c.get(j).getCourseName())){
-                student.removeProject(Projects.get(i));
-                break;
-            }
+        for(int j = 0 ; j<studentsOfTeacher.size() ; j++){
+            studentsOfTeacher.get(j).removeProject(Projects.get(j));
         }
     }
 }

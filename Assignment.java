@@ -4,14 +4,14 @@ public class Assignment {
     private String deadline;
     private boolean available;
     private String coursename;
-    private Strign teacherid;
+    private String teacherid;
     Assignment(String deadline, boolean available , String name ,String coursename , String teacherid) {
         this.deadline = deadline;
         this.available = available;
         this.name = name;
         this.coursename=coursename;
     }
-    public Strign getTeacherid() {
+    public String getTeacherid() {
         return teacherid;
     }
     public void setCoursename(String coursename) {
