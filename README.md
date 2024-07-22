@@ -36,15 +36,4 @@ Here are some screenshots of the app:
 ![Screenshot 4](./screenshots/sc4.JPG)
 ![Screenshot 5](./screenshots/sc5.JPG)
 
-## How to Upload a Photo to This README File
 
-To make your README file visually appealing, you can add images by following these steps:
-
-1. **Store Image Locally/Online**: 
-   - If the image is stored locally in your project directory, note the relative path.
-   - If the image is hosted online, ensure you have the URL.
-
-2. **Add Image Using Markdown**:
-   Use the following markdown syntax to add images to your README:
-   ```markdown
-   ![Image Description](path_or_url_to_image)
