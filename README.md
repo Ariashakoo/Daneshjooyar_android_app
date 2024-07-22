@@ -1,21 +1,22 @@
-/*Android Daneshjooyar Project */
+Android Daneshjooyar Project
+Welcome to the Android Daneshjooyar Project! This project utilizes a Command Line Interface (CLI) for the admin account to manage students, teachers, and more. The system architecture ensures smooth data handling from back-end to front-end for a seamless user experience.
 
-This Project has a CLI that is the admin account that can add Students and Teachers and etc...
-The cli sends the data to the database that is the "file"
-and the server receives the data from the database
+Project Architecture
+CLI (Command Line Interface)
+Admin Account: Manage Students, Teachers, and other entities.
+Storage: The CLI sends data directly to the database which is stored as either text files or SQL databases.
+Database
+File-Based Storage: Utilizes text files for basic storage.
+SQL Database: Optimal for efficient data storage and quick access with minimal code complexity.
+Server
+Data Handling: Retrieves data from the database and sends it to the front-end.
+Frontend
+Flutter Integration: Receives data through sockets in each required page.
+Data Processing: The incoming data is usually in string format which is split and displayed part by part.
+UI Enhancement: Each page is designed with a visually appealing background.
+Key Features
+Efficient data management with SQL for faster performance.
+Simplified code and data structures for easier understanding.
+Real-time data fetching and display using Flutter and socket integration.
+Attractive UI with page-specific backgrounds.
 
-Now the databse Sends the data to the server and the server sends the data to Frontend
-Now flutter receives the data with a socket in each page Needed 
-
-The data received is normally a String we split the String 
-The splited String is sent part to part to showcase
-Each Page has  a background for better UI 
-
-Cli is implemented with txt and sql
-
-The sql is better to save data cause it doesnt need that much classes and plus it runs faster with less code and it is
-Easier to understand 
-
-Hope the Project is helpfull !
-
- 
