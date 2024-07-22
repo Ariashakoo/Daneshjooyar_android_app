@@ -1,22 +1,50 @@
-Android Daneshjooyar Project
+# Android Daneshjooyar Project
+
 Welcome to the Android Daneshjooyar Project! This project utilizes a Command Line Interface (CLI) for the admin account to manage students, teachers, and more. The system architecture ensures smooth data handling from back-end to front-end for a seamless user experience.
 
-Project Architecture
-CLI (Command Line Interface)
-Admin Account: Manage Students, Teachers, and other entities.
-Storage: The CLI sends data directly to the database which is stored as either text files or SQL databases.
-Database
-File-Based Storage: Utilizes text files for basic storage.
-SQL Database: Optimal for efficient data storage and quick access with minimal code complexity.
-Server
-Data Handling: Retrieves data from the database and sends it to the front-end.
-Frontend
-Flutter Integration: Receives data through sockets in each required page.
-Data Processing: The incoming data is usually in string format which is split and displayed part by part.
-UI Enhancement: Each page is designed with a visually appealing background.
-Key Features
-Efficient data management with SQL for faster performance.
-Simplified code and data structures for easier understanding.
-Real-time data fetching and display using Flutter and socket integration.
-Attractive UI with page-specific backgrounds.
+## Project Architecture
 
+### CLI (Command Line Interface)
+- **Admin Account**: Manage Students, Teachers, and other entities.
+- **Storage**: The CLI sends data directly to the database which is stored as either text files or SQL databases.
+
+### Database
+- **File-Based Storage**: Utilizes text files for basic storage.
+- **SQL Database**: Optimal for efficient data storage and quick access with minimal code complexity.
+
+### Server
+- **Data Handling**: Retrieves data from the database and sends it to the front-end.
+
+### Frontend
+- **Flutter Integration**: Receives data through sockets in each required page.
+- **Data Processing**: The incoming data is usually in string format which is split and displayed part by part.
+- **UI Enhancement**: Each page is designed with a visually appealing background.
+
+## Key Features
+- Efficient data management with SQL for faster performance.
+- Simplified code and data structures for easier understanding.
+- Real-time data fetching and display using Flutter and socket integration.
+- Attractive UI with page-specific backgrounds.
+
+## Screenshots
+
+Here are some screenshots of the app:
+
+![Screenshot 1](./screenshots/sc1.JPG)
+![Screenshot 2](./screenshots/sc2.JPG)
+![Screenshot 3](./screenshots/sc3.JPG)
+![Screenshot 4](./screenshots/sc4.JPG)
+![Screenshot 5](./screenshots/sc5.JPG)
+
+## How to Upload a Photo to This README File
+
+To make your README file visually appealing, you can add images by following these steps:
+
+1. **Store Image Locally/Online**: 
+   - If the image is stored locally in your project directory, note the relative path.
+   - If the image is hosted online, ensure you have the URL.
+
+2. **Add Image Using Markdown**:
+   Use the following markdown syntax to add images to your README:
+   ```markdown
+   ![Image Description](path_or_url_to_image)
