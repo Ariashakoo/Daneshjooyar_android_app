@@ -20,7 +20,7 @@ class _AssignmentsPageState extends State<AssignmentsPage> {
 
   void fetchAssignments() async {
     try {
-      final Socket socket = await Socket.connect('192.168.8.100', 12345);
+      final Socket socket = await Socket.connect('', 12345);
       print('Connected to the server');
       socket.writeln('tamrin');
 
