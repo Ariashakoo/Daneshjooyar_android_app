@@ -34,7 +34,7 @@ class _ClassesPageState extends State<ClassesPage> {
 
   Future<void> _fetchClassesFromServer() async {
     try {
-      final socket = await Socket.connect('192.168.8.100', 12345);
+      final socket = await Socket.connect('', 12345);
       socket.write('course\n'); // Send the command with a newline character
 
       socket.listen((data) {
