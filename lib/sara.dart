@@ -37,7 +37,7 @@ class _SaraPageState extends State<SaraPage> {
 
   void fetchGrades() async {
     try {
-      Socket socket = await Socket.connect('192.168.8.100', 12345);
+      Socket socket = await Socket.connect('', 12345);
       socket.write('sara\n');
 
       // Listen for the server's response
