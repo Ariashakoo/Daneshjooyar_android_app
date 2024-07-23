@@ -1,19 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Only import this for the date formatting
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: AssignmentsPage(),
-    );
-  }
-}
+import 'dart:io';
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 
 class AssignmentsPage extends StatefulWidget {
   @override
@@ -21,13 +9,81 @@ class AssignmentsPage extends StatefulWidget {
 }
 
 class _AssignmentsPageState extends State<AssignmentsPage> {
-  final List<Assignment> assignments = [
-    Assignment('AP Mini Project Assignment', DateTime.now().add(Duration(days: 2)), '4:00 PM'),
-    Assignment('Digital Logic Circuits 1 Assignment', DateTime.now().add(Duration(days: 4)), '6:00 PM'),
-    Assignment('Math 2 Assignment', DateTime.now().add(Duration(days: 5)), '12:00 PM'),
-    Assignment('Differential Equations 2 Assignment', DateTime.now().add(Duration(days: 6)), '9:00 AM'),
-    Assignment('Computer Architecture Assignment', DateTime.now().add(Duration(days: 7)), '9:00 AM'),
-  ];
+  final List<Assignment> assignments = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAssignments();
+  }
+
+  void fetchAssignments() async {
+    try {
+      final Socket socket = await Socket.connect('192.168.8.100', 12345);
+      print('Connected to the server');
+      socket.writeln('tamrin');
+
+      List<String> serverResponse = [];
+      Completer<void> completer = Completer<void>();
+
+      socket.listen(
+            (List<int> event) {
+          final responseString = String.fromCharCodes(event).trim();
+          print('Received: $responseString'); // Debug statement
+          if (responseString == "END_ASSIGNMENTS") {
+            socket.close();
+            completer.complete();
+          } else {
+            serverResponse.add(responseString);
+          }
+        },
+        onError: (error) {
+          print('Error: $error');
+          setState(() {
+            isLoading = false;
+          });
+          completer.completeError(error);
+          socket.close();
+        },
+        onDone: () {
+          print('Connection closed by the server');
+          socket.close();
+        },
+      );
+
+      await completer.future;
+      parseAssignments(serverResponse);
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Failed to connect to the server: $e");
+    }
+  }
+
+  void parseAssignments(List<String> response) {
+    setState(() {
+      for (var line in response) {
+        if (line.isNotEmpty) {
+          final parts = line.split('~');
+          if (parts.length == 4) {
+            bool isCompleted = parts[1].trim().toLowerCase() == 'true';
+            assignments.add(
+              Assignment(
+                parts[2], // Title
+                DateTime.now(), // Using current date, modify as needed
+                'Time: ${parts[0]}', // Time remaining formatted as needed
+                isCompleted: isCompleted,
+                description: parts[3], // Description
+              ),
+            );
+          }
+        }
+      }
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +91,9 @@ class _AssignmentsPageState extends State<AssignmentsPage> {
       appBar: AppBar(
         title: Text('Assignments'),
       ),
-      body: ListView.builder(
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
         itemCount: assignments.length,
         itemBuilder: (context, index) {
           return AssignmentCard(
@@ -49,6 +107,11 @@ class _AssignmentsPageState extends State<AssignmentsPage> {
                 ),
               );
             },
+            onCheckboxChanged: (bool? isChecked) {
+              setState(() {
+                assignments[index].isCompleted = isChecked ?? false;
+              });
+            },
           );
         },
       ),
@@ -60,16 +123,21 @@ class Assignment {
   final String title;
   final DateTime dueDate;
   final String time;
+  final String description;
   bool isCompleted;
+  File? file;
 
-  Assignment(this.title, this.dueDate, this.time, {this.isCompleted = false});
+  Assignment(this.title, this.dueDate, this.time,
+      {this.isCompleted = false, this.file, required this.description});
 }
 
 class AssignmentCard extends StatelessWidget {
   final Assignment assignment;
   final VoidCallback onTap;
+  final ValueChanged<bool?> onCheckboxChanged;
 
-  const AssignmentCard({required this.assignment, required this.onTap});
+  const AssignmentCard(
+      {required this.assignment, required this.onTap, required this.onCheckboxChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -80,13 +148,10 @@ class AssignmentCard extends StatelessWidget {
         child: ListTile(
           leading: Checkbox(
             value: assignment.isCompleted,
-            onChanged: (bool? value) {
-              // Handle checkbox value change if needed
-            },
+            onChanged: onCheckboxChanged,
           ),
           title: Text(assignment.title),
-          subtitle: Text(
-              '${DateFormat.yMMMMd().format(assignment.dueDate)} \n${assignment.time}'),
+          subtitle: Text('${assignment.time}\n${assignment.description}'),
           onTap: onTap,
         ),
       ),
@@ -104,6 +169,18 @@ class AssignmentDetailsPage extends StatefulWidget {
 }
 
 class _AssignmentDetailsPageState extends State<AssignmentDetailsPage> {
+  void _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      setState(() {
+        widget.assignment.file = File(result.files.single.path!);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,39 +189,49 @@ class _AssignmentDetailsPageState extends State<AssignmentDetailsPage> {
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Title: ${widget.assignment.title}', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 10),
-            Text('Deadline: ${DateFormat.yMMMMd().format(widget.assignment.dueDate)}'),
-            SizedBox(height: 10),
-            Text('Estimated Remaining Time: 5 hours'),
-            SizedBox(height: 10),
-            Text('Description: Familiarize yourself with Verilog and asynchronous circuits'),
-            SizedBox(height: 10),
-            CheckboxListTile(
-              title: Text('Mark as completed'),
-              value: widget.assignment.isCompleted,
-              onChanged: (bool? value) {
-                setState(() {
-                  widget.assignment.isCompleted = value ?? false;
-                });
-              },
-            ),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Submission Notes',
-                border: OutlineInputBorder(),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Title: ${widget.assignment.title}', style: TextStyle(fontSize: 20)),
+              SizedBox(height: 10),
+              Text('Time Remaining: ${widget.assignment.time}'),
+              SizedBox(height: 10),
+              Text('Description: ${widget.assignment.description}'),
+              SizedBox(height: 10),
+              CheckboxListTile(
+                title: Text('Mark as completed'),
+                value: widget.assignment.isCompleted,
+                onChanged: (bool? value) {
+                  setState(() {
+                    widget.assignment.isCompleted = value ?? false;
+                  });
+                },
               ),
-              maxLines: 3,
-            ),
-            SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: () {},
-              child: Text('Submit'),
-            ),
-          ],
+              TextField(
+                decoration: InputDecoration(
+                  labelText: 'Submission Notes',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _pickFile,
+                child: Text('Upload PDF'),
+              ),
+              if (widget.assignment.file != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text('File: ${widget.assignment.file!.path.split('/').last}'),
+                ),
+              SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {},
+                child: Text('Submit'),
+              ),
+            ],
+          ),
         ),
       ),
     );

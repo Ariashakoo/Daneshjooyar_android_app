@@ -1,201 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:io';
+import 'dart:convert';
 
 class ClassModel {
-  final String id;
   final String title;
   final String professor;
-  final DateTime classTime;
+  final int unitCount;
+  final int remainingAssignments;
   bool isDone;
 
-  ClassModel({required this.id, required this.title, required this.professor, required this.classTime, this.isDone = false});
+  ClassModel({
+    required this.title,
+    required this.professor,
+    required this.unitCount,
+    required this.remainingAssignments,
+    this.isDone = false,
+  });
 }
 
-class ClassListScreen extends StatefulWidget {
+class ClassesPage extends StatefulWidget {
   @override
-  _ClassListScreenState createState() => _ClassListScreenState();
+  _ClassesPageState createState() => _ClassesPageState();
 }
 
-class _ClassListScreenState extends State<ClassListScreen> {
+class _ClassesPageState extends State<ClassesPage> {
   final List<ClassModel> _classes = [];
-  final TextEditingController _classTextEditingController = TextEditingController();
-  final TextEditingController _professorTextEditingController = TextEditingController();
-  int _currentIndex = 0;
-  DateTime _selectedDate = DateTime.now();
-  TimeOfDay _selectedTime = TimeOfDay(hour: 0, minute: 0);
-
-  void _createClass(ClassModel classModel) {
-    setState(() {
-      _classes.add(classModel);
-    });
-  }
-
-  void _removeClass(String classId) {
-    setState(() {
-      _classes.removeWhere((classModel) => classModel.id == classId);
-    });
-  }
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  void _toggleClassStatus(ClassModel classModel) {
-    setState(() {
-      classModel.isDone =!classModel.isDone;
-    });
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2015),
-      lastDate: DateTime(2101),
-    );
-    if (picked!= null) {
-      setState(() {
-        _selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime,
-    );
-    if (picked!= null) {
-      setState(() {
-        _selectedTime = picked;
-      });
-    }
-  }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Classes'),
-        centerTitle: true,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/back.jpg'), // replace with your image
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: ListView.builder(
-          itemCount: _classes.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                _classes[index].title,
-                style: TextStyle(
-                  color: _classes[index].isDone? Colors.green : Colors.red,
-                ),
-              ),
-              subtitle: Text(
-                'Professor: ${_classes[index].professor}\nTime: ${DateFormat.yMMMd().add_Hms().format(_classes[index].classTime)}',
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  _removeClass(_classes[index].id);
-                },
-              ),
-              onTap: () {
-                _toggleClassStatus(_classes[index]);
-              },
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text('New Class'),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: _classTextEditingController,
-                      decoration: InputDecoration(
-                        labelText: 'Class Name',
-                      ),
-                      maxLines: 2,
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      controller: _professorTextEditingController,
-                      decoration: InputDecoration(
-                        labelText: 'Professor Name',
-                      ),
-                      maxLines: 2,
-                    ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () => _selectDate(context),
-                      child: Text('Select Class Date'),
-                    ),
-                    Text(DateFormat.yMMMd().format(_selectedDate)),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () => _selectTime(context),
-                      child: Text('Select Class Time'),
-                    ),
-                    Text(_selectedTime.format(context)),
-                  ],
-                ),
-                actionsAlignment: MainAxisAlignment.spaceBetween,
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      if (_classTextEditingController.text.isNotEmpty && _professorTextEditingController.text.isNotEmpty) {
-                        final ClassModel newClass = ClassModel(
-                          id: DateTime.now().toString(),
-                          title: _classTextEditingController.text,
-                          professor: _professorTextEditingController.text,
-                          classTime: DateTime(
-                            _selectedDate.year,
-                            _selectedDate.month,
-                            _selectedDate.day,
-                            _selectedTime.hour,
-                            _selectedTime.minute,
-                          ),
-                        );
-                        _createClass(newClass);
-                        _classTextEditingController.clear();
-                        _professorTextEditingController.clear();
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: Text('Save'),
-                  ),
-                ],
-              );
-            },
-          );
-        },
-      ),
-    );
+  void initState() {
+    super.initState();
+    _fetchClassesFromServer();
   }
-}
 
-class ClassesPage extends StatelessWidget {
+  Future<void> _fetchClassesFromServer() async {
+    try {
+      final socket = await Socket.connect('192.168.8.100', 12345);
+      socket.write('course\n'); // Send the command with a newline character
+
+      socket.listen((data) {
+        final decodedData = utf8.decode(data);
+        final classLines = decodedData.split('\n');
+
+        setState(() {
+          _classes.clear();
+          for (var line in classLines) {
+            if (line.trim().isNotEmpty) {
+              final parts = line.split('~');
+              if (parts.length == 4) {
+                final classModel = ClassModel(
+                  title: parts[0],
+                  professor: parts[2],
+                  unitCount: int.parse(parts[1]),
+                  remainingAssignments: int.parse(parts[3]),
+                );
+                _classes.add(classModel);
+              }
+            }
+          }
+        });
+
+        socket.destroy();
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,56 +81,26 @@ class ClassesPage extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.jpg'), // replace with your image
+            image: AssetImage('assets/images/ae.jpg'),
             fit: BoxFit.cover,
           ),
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
-            children: [
-              ClassCard(
-                title: 'برنامه‌سازی پیشرفته',
-                teacher: 'دکتر وحیدی',
-                unitCount: 3,
-                remainingAssignments: 4,
-                topStudent: 'علی علوی',
-                color: Colors.purple,
-              ),
-              ClassCard(
-                title: 'معماری کامپیوتر',
-                teacher: 'دکتر مهدیانی',
-                unitCount: 3,
-                remainingAssignments: 4,
-                topStudent: 'علی علوی',
-                color: Colors.red,
-              ),
-              ClassCard(
-                title: 'ساختمان داده',
-                teacher: 'دکتر علیدوست',
-                unitCount: 3,
-                remainingAssignments: 4,
-                topStudent: 'علی علوی',
-                color: Colors.green,
-              ),
-            ],
+            children: _classes.map((classModel) {
+              return ClassCard(
+                title: classModel.title,
+                teacher: classModel.professor,
+                unitCount: classModel.unitCount,
+                remainingAssignments: classModel.remainingAssignments,
+                topStudent: 'Parsa Hamzei', // Placeholder for top student
+                color: Colors.purple, // Placeholder color
+              );
+            }).toList(),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _navigateToClassListScreen(context); // Navigate to ClassListScreen
-        },
-        child: Icon(Icons.add),
-        tooltip: 'افزودن کلاس',
-      ),
-    );
-  }
-
-  void _navigateToClassListScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ClassListScreen()),
     );
   }
 }
@@ -326,7 +166,14 @@ class ClassCard extends StatelessWidget {
 }
 
 void main() {
-  runApp(MaterialApp(
-    home: ClassesPage(),
-  ));
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: ClassesPage(),
+    );
+  }
 }

@@ -77,7 +77,7 @@ class _UserPageState extends State<UserPage> {
   }
 
   Future<void> _changePassword(String newPassword) async {
-    const String serverAddress = '192.168.8.100'; // Replace with your server's IP address
+    const String serverAddress = '172.20.110.1'; // Replace with your server's IP address
     const int serverPort = 12345; // Replace with your server's port
     Socket? socket;
 

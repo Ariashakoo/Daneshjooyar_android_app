@@ -14,15 +14,45 @@ class TaskModel {
 class Kara extends StatefulWidget {
   @override
   _KaraState createState() => _KaraState();
+  static List<TaskModel> getTasks() => _tasks;
 }
 
+final List<TaskModel> _tasks = [];
+
 class _KaraState extends State<Kara> {
-  final List<TaskModel> _tasks = [];
   final TextEditingController _taskTextEditingController = TextEditingController();
   int _currentIndex = 0;
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay(hour: 0, minute: 0);
   DateTime? _selectedReminder;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showReminderDialog();
+    });
+  }
+
+  void _showReminderDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Reminder'),
+          content: Text('Don\'t forget tasks!!'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _createTask(TaskModel task) {
     setState(() {
@@ -90,6 +120,9 @@ class _KaraState extends State<Kara> {
 
   @override
   Widget build(BuildContext context) {
+    final List<TaskModel> todoTasks = _tasks.where((task) => !task.isDone).toList();
+    final List<TaskModel> doneTasks = _tasks.where((task) => task.isDone).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('My To-Do List'),
@@ -98,35 +131,74 @@ class _KaraState extends State<Kara> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/back.jpg'), // replace with your image
+            image: AssetImage('assets/images/back11.jpg'), // replace with your image
             fit: BoxFit.cover,
           ),
         ),
-        child: ListView.builder(
-          itemCount: _tasks.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                _tasks[index].title,
-                style: TextStyle(
-                  color: _tasks[index].isDone ? Colors.green : Colors.red,
-                ),
-              ),
-              subtitle: Text(
-                'Deadline: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].deadline)}'
-                    '${_tasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(_tasks[index].reminder!)}' : ''}',
-              ),
-              trailing: IconButton(
-                icon: Icon(Icons.delete),
-                onPressed: () {
-                  _removeTask(_tasks[index].id);
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: todoTasks.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      todoTasks[index].title,
+                      style: TextStyle(
+                        color: todoTasks[index].isDone ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Deadline: ${DateFormat.yMMMd().add_Hms().format(todoTasks[index].deadline)}'
+                          '${todoTasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(todoTasks[index].reminder!)}' : ''}',
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _removeTask(todoTasks[index].id);
+                      },
+                    ),
+                    onTap: () {
+                      _toggleTaskStatus(todoTasks[index]);
+                    },
+                  );
                 },
               ),
-              onTap: () {
-                _toggleTaskStatus(_tasks[index]);
-              },
-            );
-          },
+            ),
+            Divider(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('DONE TASKS', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: doneTasks.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      doneTasks[index].title,
+                      style: TextStyle(
+                        color: doneTasks[index].isDone ? Colors.green : Colors.red,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Deadline: ${DateFormat.yMMMd().add_Hms().format(doneTasks[index].deadline)}'
+                          '${doneTasks[index].reminder != null ? '\nReminder: ${DateFormat.yMMMd().add_Hms().format(doneTasks[index].reminder!)}' : ''}',
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        _removeTask(doneTasks[index].id);
+                      },
+                    ),
+                    onTap: () {
+                      _toggleTaskStatus(doneTasks[index]);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(

@@ -1,36 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
+import 'birthday.dart';  // Import the BirthdayPage
 
 class NewsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    // Get today's date
+    String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/back.jpg'), // replace with your background image
+            image: AssetImage('assets/images/ae.jpg'), // replace with your background image
             fit: BoxFit.cover,
           ),
         ),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Chip(label: Text('اخبار')),
-                  Chip(label: Text('رویدادها')),
-                  Chip(label: Text('یادآوری‌ها')),
-                  Chip(label: Text('تولدهای امروز')),
-                  Chip(label: Text('تمدیدها')),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.cake),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => BirthdayHomePage()),
+                    );
+                  },
+                  tooltip: 'Birthday Page',
+                ),
+              ],
             ),
             Container(
               margin: EdgeInsets.all(8.0),
               child: Text(
-                'امروز (۱۶ اردیبهشت)',
+                'امروز ($today)',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),

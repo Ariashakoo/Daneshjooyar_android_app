@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'kara.dart';
 import 'khabara.dart';
 import 'classa.dart';
 import 'tasks_page.dart';
+
 class SaraPage extends StatefulWidget {
   @override
   _SaraPageState createState() => _SaraPageState();
@@ -10,11 +12,13 @@ class SaraPage extends StatefulWidget {
 
 class _SaraPageState extends State<SaraPage> {
   int _currentIndex = 0;
+  String highestGrade = "";
+  String lowestGrade = "";
 
   final List<Widget> _children = [
-    HomePage(), // Replace SaraPageWidget with HomePage
+    HomePage(highestGrade: '', lowestGrade: ''), // Initialize with empty strings
     NewsPage(),
-    ClassListScreen(),
+    ClassesPage(),
     Kara(), // Navigate to Kara page
     AssignmentsPage(),
   ];
@@ -23,6 +27,34 @@ class _SaraPageState extends State<SaraPage> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchGrades();
+  }
+
+  void fetchGrades() async {
+    try {
+      Socket socket = await Socket.connect('192.168.8.100', 12345);
+      socket.write('sara\n');
+
+      // Listen for the server's response
+      socket.listen((List<int> event) {
+        String serverResponse = String.fromCharCodes(event);
+        List<String> grades = serverResponse.split(',');
+        setState(() {
+          highestGrade = grades[0].trim();
+          lowestGrade = grades[1].trim();
+          // Update HomePage with new values
+          _children[0] = HomePage(highestGrade: highestGrade, lowestGrade: lowestGrade);
+        });
+        socket.destroy();
+      });
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   @override
@@ -64,19 +96,43 @@ class _SaraPageState extends State<SaraPage> {
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  final String highestGrade;
+  final String lowestGrade;
+
+  const HomePage({
+    Key? key,
+    required this.highestGrade,
+    required this.lowestGrade,
+  }) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<TaskModel> tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    tasks = Kara.getTasks();
+  }
 
   @override
   Widget build(BuildContext context) {
+    List<TaskModel> currentTasks = tasks.where((task) => !task.isDone).toList();
+    List<TaskModel> completedTasks = tasks.where((task) => task.isDone).toList();
+
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/images/back.jpg'), // replace with your background image
+          image: AssetImage('assets/images/ae.jpg'), // replace with your background image
           fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -95,11 +151,11 @@ class HomePage extends StatelessWidget {
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                   children: [
-                    summaryCard(Icons.star, 'Highest grade : 19.25'),
+                    summaryCard(Icons.star, 'Highest grade: ${widget.highestGrade}'),
+                    summaryCard(Icons.sentiment_dissatisfied, 'Lowest grade: ${widget.lowestGrade}'),
                     summaryCard(Icons.favorite, 'Upcoming Exams: 2'),
-                    summaryCard(Icons.access_alarm, 'Tasks remaining: 3'),
+                    summaryCard(Icons.access_alarm, 'Tasks remaining: ${currentTasks.length}'),
                     summaryCard(Icons.access_time, 'Missed deadlines: 1'),
-                    summaryCard(Icons.sentiment_dissatisfied, 'Lowest grade: 12'),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -108,16 +164,14 @@ class HomePage extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                taskCard('DLD - HW1', false),
-                taskCard('AP - HW6', false),
+                ...currentTasks.map((task) => taskCard(task.title, false)).toList(),
                 const SizedBox(height: 20),
                 const Text(
                   'Completed Tasks',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                taskCard('DS - HW3', true),
-                taskCard('AP - HW5', true),
+                ...completedTasks.map((task) => taskCard(task.title, true)).toList(),
               ],
             ),
           ),
@@ -157,7 +211,7 @@ class HomePage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isDone? Colors.green[100] : Colors.red[100],
+        color: isDone ? Colors.green[100] : Colors.red[100],
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
@@ -165,8 +219,8 @@ class HomePage extends StatelessWidget {
         children: [
           Text(text),
           Icon(
-            isDone? Icons.check_circle : Icons.cancel,
-            color: isDone? Colors.green : Colors.red,
+            isDone ? Icons.check_circle : Icons.cancel,
+            color: isDone ? Colors.green : Colors.red,
           ),
         ],
       ),
